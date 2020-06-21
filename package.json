@@ -1,0 +1,28 @@
+{
+  "name": "linkedin-helper",
+  "version": "0.0.01",
+  "description": "puppeteer parser",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack-dev-server --open"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.0.2",
+    "@typescript-eslint/parser": "^3.0.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.3",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "webpack": "^4.43.0"
+  },
+  "keywords": ["puppeteer", "parser", "typescript"],
+  "author": "",
+  "license": "ISC"
+}
