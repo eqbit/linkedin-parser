@@ -4,10 +4,10 @@
   "description": "puppeteer parser",
   "main": "build/index.js",
   "scripts": {
-    "build": "webpack",
-    "start": "webpack-dev-server --open"
+    "start": "ts-node-dev --respawn --no-notify src/index.ts"
   },
   "devDependencies": {
+    "@types/puppeteer": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^3.0.2",
     "@typescript-eslint/parser": "^3.0.2",
     "clean-webpack-plugin": "^3.0.0",
@@ -15,14 +15,18 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
     "ts-loader": "^7.0.5",
-    "typescript": "^3.9.3",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.0"
+    "typescript": "^3.9.3"
   },
   "dependencies": {
-    "webpack": "^4.43.0"
+    "puppeteer": "^4.0.0",
+    "ts-node-dev": "^1.0.0-pre.49"
   },
-  "keywords": ["puppeteer", "parser", "typescript"],
+  "keywords": [
+    "puppeteer",
+    "parser",
+    "typescript"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "type": "module"
 }
