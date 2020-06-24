@@ -7,7 +7,7 @@ const main = new Main({
 });
 
 main.init().then(() => {
-  main.openPage();
+  main.work();
 });
 
 // const main = () => {

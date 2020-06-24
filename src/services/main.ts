@@ -4,9 +4,14 @@ import { launchBrowser } from '../utils/launchBrowser';
 import { config } from '../config/credentials.env';
 import { getCookie, saveCookie } from '../utils/fs';
 
+const HOME_URL = 'https://www.linkedin.com';
 const CONTACTS_URL = 'https://www.linkedin.com/mynetwork/invite-connect/connections/';
 const LOGIN_URL = 'https://www.linkedin.com/login';
 const NAVIGATION_TIMEOUT = 120000;
+
+const SCROLLING_DISTANCE = 1000;
+const SCROLLING_INTERVAL = 100;
+const SCROLLING_TIMEOUT = 30000;
 
 interface Options {
   login: string;
@@ -18,12 +23,20 @@ export class Main {
   protected page: Page;
   protected isAuthenticated = false;
   
+  protected scrollingDistance: number;
+  protected scrollingInterval: number;
+  protected scrollingTimeout: number;
+  
   protected login: string;
   protected password: string;
   
   constructor({ login, password }: Options) {
     this.login = login;
     this.password = password;
+  
+    this.scrollingDistance = SCROLLING_DISTANCE;
+    this.scrollingInterval = SCROLLING_INTERVAL;
+    this.scrollingTimeout = SCROLLING_TIMEOUT;
   }
   
   public init = async () => {
@@ -81,10 +94,52 @@ export class Main {
     this.isAuthenticated = true;
   }
   
-  public openPage = async () => {
+  protected async scrollPage() {
+    const scroll = (
+      {
+        distance,
+        interval,
+        timeout
+      }
+    ) => new Promise((resolve) => {
+      const intervalId = setInterval(() => {
+        window.scrollBy(0, distance);
+      }, interval);
+      
+      setTimeout(() => {
+        clearInterval(intervalId);
+        resolve();
+      }, timeout);
+    });
+    
+    await this.page.evaluate(
+      scroll,
+      {
+        distance: this.scrollingDistance,
+        interval: this.scrollingInterval,
+        timeout: this.scrollingTimeout
+      }
+    );
+  }
+  
+  protected getProfileLinks = async () => {
+    const links = await this.page.evaluate(() => {
+      const profiles = document.querySelectorAll('.mn-connection-card__picture');
+      const links = [];
+      profiles.forEach((profile) => {
+        links.push(profile.getAttribute('href'));
+      });
+    });
+  
+    console.log('links', links)
+  }
+  
+  public work = async () => {
     await this.setPage();
     await this.page.authenticate({ username: config.proxy.login, password: config.proxy.password });
-    
     await this.authenticate();
+    
+    await this.scrollPage();
+    await this.getProfileLinks();
   }
 }
