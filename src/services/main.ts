@@ -3,15 +3,13 @@ import * as crypto from "crypto";
 import { launchBrowser } from '../utils/launchBrowser';
 import { config } from '../config/credentials.env';
 import { getCookie, saveCookie } from '../utils/fs';
-
-const HOME_URL = 'https://www.linkedin.com';
-const CONTACTS_URL = 'https://www.linkedin.com/mynetwork/invite-connect/connections/';
-const LOGIN_URL = 'https://www.linkedin.com/login';
-const NAVIGATION_TIMEOUT = 120000;
+import { CONTACTS_URL, LOGIN_URL } from '../config/constants';
+import { LifeImitation } from './life-imitation';
 
 const SCROLLING_DISTANCE = 1000;
 const SCROLLING_INTERVAL = 100;
 const SCROLLING_TIMEOUT = 30000;
+export const NAVIGATION_TIMEOUT = 120000;
 
 interface Options {
   login: string;
@@ -138,8 +136,14 @@ export class Main {
     await this.setPage();
     await this.page.authenticate({ username: config.proxy.login, password: config.proxy.password });
     await this.authenticate();
-    
-    await this.scrollPage();
-    await this.getProfileLinks();
+    //
+    // await this.scrollPage();
+    // await this.getProfileLinks();
+  
+    console.log('start imitation');
+    let lifeImitator = new LifeImitation({ page: this.page });
+    await lifeImitator.work();
+    lifeImitator = null;
+    console.log('finish imitation');
   }
 }
