@@ -51,9 +51,21 @@ export class LifeImitation {
     }
   }
   
+  protected async loadNewPosts() {
+    await randomSleep(MIN_SLEEP, MAX_SLEEP);
+    await this.page.evaluate(() => {
+      const button: HTMLElement = document.querySelector('[data-control-name="new_updates"]');
+      if (button) {
+        button.click();
+      }
+    });
+  }
+  
   public async work() {
     return new Promise(async (resolve) => {
       await this.page.goto(FEED_URL, { waitUntil: 'load' });
+      
+      await this.loadNewPosts();
       
       let letScroll = true;
       setTimeout(() => {

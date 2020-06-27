@@ -3,8 +3,9 @@ import * as crypto from "crypto";
 import { launchBrowser } from '../utils/launchBrowser';
 import { config } from '../config/credentials.env';
 import { getCookie, saveCookie } from '../utils/fs';
-import { CONTACTS_URL, LOGIN_URL } from '../config/constants';
+import { CONTACTS_URL, FEED_URL, LOGIN_URL } from '../config/constants';
 import { LifeImitation } from './life-imitation';
+import { sleep } from '../utils/sleep';
 
 const SCROLLING_DISTANCE = 1000;
 const SCROLLING_INTERVAL = 100;
@@ -45,9 +46,16 @@ export class Main {
         proxyPort: config.proxy.port
       }
     );
+    await this.setupBrowser();
   }
   
-  protected setPage = async () => {
+  protected setupBrowser = async () => {
+    await this.initPage();
+    //await this.page.authenticate({ username: config.proxy.login, password: config.proxy.password });
+    await this.authenticate();
+  }
+  
+  protected initPage = async () => {
     if (this.page) {
       return;
     }
@@ -71,8 +79,8 @@ export class Main {
       await page.setCookie(...cookies);
     }
   
-    await page.goto(CONTACTS_URL, { waitUntil: 'load' });
-    if (page.url().startsWith(CONTACTS_URL)) {
+    await page.goto(FEED_URL, { waitUntil: 'load' });
+    if (page.url().startsWith(FEED_URL)) {
       this.isAuthenticated = true;
       return;
     }
@@ -132,18 +140,25 @@ export class Main {
     console.log('links', links)
   }
   
-  public work = async () => {
-    await this.setPage();
-    await this.page.authenticate({ username: config.proxy.login, password: config.proxy.password });
-    await this.authenticate();
-    //
-    // await this.scrollPage();
-    // await this.getProfileLinks();
-  
+  protected startLifeImitation = async () => {
     console.log('start imitation');
     let lifeImitator = new LifeImitation({ page: this.page });
     await lifeImitator.work();
     lifeImitator = null;
     console.log('finish imitation');
+  
+    await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
+  }
+  
+  public work = async () => {
+    await this.startLifeImitation();
+    await sleep(15000);
+    await this.startLifeImitation();
+    await sleep(25000);
+    await this.startLifeImitation();
+    await sleep(45000);
+    await this.startLifeImitation();
+    await sleep(25000);
+    await this.startLifeImitation();
   }
 }
