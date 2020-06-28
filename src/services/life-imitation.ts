@@ -46,6 +46,7 @@ export class LifeImitation {
       };
       
       await this.page.evaluate(reactWithALike);
+      await randomSleep(MIN_SLEEP, MAX_SLEEP);
   
       console.log('added a like');
     }

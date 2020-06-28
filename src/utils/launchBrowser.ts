@@ -24,8 +24,8 @@ export const launchBrowser = async (options: BrowserOptions = {}): Promise<Brows
     return await launch({
         headless,
         defaultViewport: {
-            width: CHROMIUM_WINDOW_WIDTH,
-            height: CHROMIUM_WINDOW_HEIGHT
+            width: CHROMIUM_WINDOW_WIDTH - 10,
+            height: CHROMIUM_WINDOW_HEIGHT - 130
         },
         args
     });

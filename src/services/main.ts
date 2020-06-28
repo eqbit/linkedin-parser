@@ -51,7 +51,7 @@ export class Main {
   
   protected setupBrowser = async () => {
     await this.initPage();
-    //await this.page.authenticate({ username: config.proxy.login, password: config.proxy.password });
+    await this.page.authenticate({ username: config.proxy.login, password: config.proxy.password });
     await this.authenticate();
   }
   
