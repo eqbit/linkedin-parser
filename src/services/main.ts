@@ -6,6 +6,7 @@ import { getCookie, saveCookie } from '../utils/fs';
 import { CONTACTS_URL, FEED_URL, LOGIN_URL } from '../config/constants';
 import { LifeImitation } from './life-imitation';
 import { sleep } from '../utils/sleep';
+import { AcceptFriends } from './accept-friends';
 
 const SCROLLING_DISTANCE = 1000;
 const SCROLLING_INTERVAL = 100;
@@ -140,7 +141,7 @@ export class Main {
     console.log('links', links)
   }
   
-  protected startLifeImitation = async () => {
+  protected runLifeImitation = async () => {
     console.log('start imitation');
     let lifeImitator = new LifeImitation({ page: this.page });
     await lifeImitator.work();
@@ -150,15 +151,17 @@ export class Main {
     await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
   }
   
+  protected runFriendInvitesChecker = async () => {
+    console.log('start invite checker');
+    let checker = new AcceptFriends({ page: this.page });
+    await checker.work();
+    checker = null;
+    console.log('finish invite checker');
+  
+    await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
+  }
+  
   public work = async () => {
-    await this.startLifeImitation();
-    await sleep(15000);
-    await this.startLifeImitation();
-    await sleep(25000);
-    await this.startLifeImitation();
-    await sleep(45000);
-    await this.startLifeImitation();
-    await sleep(25000);
-    await this.startLifeImitation();
+    await this.runFriendInvitesChecker();
   }
 }

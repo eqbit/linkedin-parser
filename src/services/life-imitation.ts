@@ -2,9 +2,10 @@ import { Page } from 'puppeteer';
 import { FEED_URL } from '../config/constants';
 import { randomSleep } from '../utils/sleep';
 import { chance, randomMinMax } from '../utils/random';
+import { Service } from './service';
 
-const MIN_TIME_TO_LIVE = 120000;
-const MAX_TIME_TO_LIVE = 300000;
+const MIN_TIME_TO_LIVE = 1.2e5;
+const MAX_TIME_TO_LIVE = 3e5;
 const MIN_SLEEP = 1500;
 const MAX_SLEEP = 5000;
 const MIN_SCROLL = 700;
@@ -14,9 +15,10 @@ interface Options {
   page: Page;
 }
 
-export class LifeImitation {
+export class LifeImitation implements Service {
   protected page: Page;
   protected timeToLive: number;
+  protected letLive = true;
   
   constructor({ page }: Options) {
     this.page = page;
@@ -68,13 +70,12 @@ export class LifeImitation {
       
       await this.loadNewPosts();
       
-      let letScroll = true;
       setTimeout(() => {
         resolve();
-        letScroll = false;
+        this.letLive = false;
       }, this.timeToLive);
       
-      while (letScroll) {
+      while (this.letLive) {
         await this.initScroll();
         await this.leaveReaction();
       }
