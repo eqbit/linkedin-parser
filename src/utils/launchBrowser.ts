@@ -1,7 +1,7 @@
 import { launch, Browser } from 'puppeteer';
 
-const CHROMIUM_WINDOW_WIDTH = 1366;
-const CHROMIUM_WINDOW_HEIGHT = 768;
+const CHROMIUM_WINDOW_WIDTH = 1600;
+const CHROMIUM_WINDOW_HEIGHT = 900;
 
 export interface BrowserOptions {
     proxyHost?: string;
