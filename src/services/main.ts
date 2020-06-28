@@ -7,6 +7,7 @@ import { CONTACTS_URL, FEED_URL, LOGIN_URL } from '../config/constants';
 import { LifeImitation } from './life-imitation';
 import { sleep } from '../utils/sleep';
 import { AcceptFriends } from './accept-friends';
+import { Service } from './service';
 
 const SCROLLING_DISTANCE = 1000;
 const SCROLLING_INTERVAL = 100;
@@ -161,7 +162,16 @@ export class Main {
     await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
   }
   
+  protected async runService(service: Service) {
+    console.log(`Begin ${typeof service} service`);
+    await service.work();
+    service = null;
+    console.log(`Finish ${typeof service} service`);
+  
+    await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
+  }
+  
   public work = async () => {
-    await this.runFriendInvitesChecker();
+    await this.runService(new AcceptFriends({ page: this.page}));
   }
 }
