@@ -167,6 +167,10 @@ export class Main {
   protected getRandomServiceName(): Services | undefined {
     const services = Object.keys(availableServices) as Services[];
     
+    if (chance(100)) {
+      return 'addFriends';
+    }
+    
     if (chance(25)) {
       return services[Math.floor(Math.random() * services.length)]
     }
