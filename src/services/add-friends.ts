@@ -23,6 +23,8 @@ export class AddFriends implements Service {
   protected page: Page;
   protected timeToLive: number;
   protected letLive = true;
+  protected isScrolledToList = false;
+  protected invited = 0;
   
   constructor({ page }: Options) {
     this.page = page;
@@ -36,9 +38,48 @@ export class AddFriends implements Service {
     }, { distance: randomMinMax(MIN_SCROLL, MAX_SCROLL)});
   }
   
+  protected async scrollUnit() {
+    for (let i = 1; i < randomMinMax(6, 10); i++) {
+      await this.scrollPage();
+    }
+    await this.page.waitFor(randomMinMax(MIN_SLEEP_BETWEEN_SCROLL, MAX_SLEEP_BETWEEN_SCROLL));
+  }
+  
   protected async isRecommendsInViewport() {
     const list = await this.page.$('.mn-cohorts-list + div .discover-entity-list');
     return list && await list.isIntersectingViewport();
+  }
+  
+  protected async scrollToList() {
+    await this.scrollUnit();
+  
+    if (await this.isRecommendsInViewport()) {
+      this.isScrolledToList = true;
+      console.log('scrolled to the list');
+    }
+  }
+  
+  protected async isNextFriendsInViewport() {
+    const button = await this.page.$('.mn-cohorts-list + div .discover-entity-list [data-control-name=invite]');
+    return button && await button.isIntersectingViewport();
+  }
+  
+  protected async addFriend() {
+    await this.page.waitFor(randomMinMax(MIN_SLEEP, MAX_SLEEP));
+    
+    while (!await this.isNextFriendsInViewport()) {
+      await this.scrollUnit();
+    }
+    
+    const inviteNext = () => {
+      const button: HTMLElement = document
+        .querySelector('.mn-cohorts-list + div .discover-entity-list [data-control-name=invite]');
+      button.click();
+    }
+    
+    await this.page.evaluate(inviteNext);
+    console.log('Sent an invite');
+    this.invited++;
   }
   
   public async work() {
@@ -51,14 +92,14 @@ export class AddFriends implements Service {
       }, this.timeToLive);
       
       while (this.letLive) {
-        for (let i = 1; i < randomMinMax(3, 6); i++) {
-          await this.scrollPage();
-        }
-        
-        await this.page.waitFor(randomMinMax(MIN_SLEEP_BETWEEN_SCROLL, MAX_SLEEP_BETWEEN_SCROLL));
-        
-        if (await this.isRecommendsInViewport()) {
-          console.log('yeah!');
+        if (!this.isScrolledToList) {
+          await this.scrollToList();
+        } else {
+          if (this.invited < 12) {
+            await this.addFriend();
+          } else {
+            await this.page.waitFor(1000);
+          }
         }
       }
     })
