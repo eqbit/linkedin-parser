@@ -7,5 +7,10 @@ const main = new Main({
 });
 
 main.init().then(() => {
-  main.work();
+  try {
+    main.work();
+  } catch (e) {
+    console.log('Caught an error, going to kill the process', e);
+    process.exit(0);
+  }
 });
