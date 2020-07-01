@@ -52,9 +52,7 @@ export class AcceptFriends implements Service {
       };
     }
     
-    const value = await this.page.evaluate(acceptAnInvite);
-    
-    return value;
+    return this.page.evaluate(acceptAnInvite);
   }
   
   public async work() {
