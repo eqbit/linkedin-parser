@@ -1,8 +1,7 @@
 import { Page } from 'puppeteer';
 import { NETWORK_URL } from '../config/constants';
 import { randomMinMax } from '../utils/random';
-import { Service } from './service';
-import { randomSleep } from '../utils/sleep';
+import { Service } from '../types';
 
 const MIN_TIME_TO_LIVE = 2.5e4;
 const MAX_TIME_TO_LIVE = 4e4;
@@ -13,8 +12,13 @@ interface Options {
   page: Page;
 }
 
+interface AcceptFriendInviteReturn {
+  addedOne: boolean;
+  gotMore: boolean;
+}
+
 export class AcceptFriends implements Service {
-  name: 'friend invite inspector service'
+  public name = 'friend invite inspector service';
   protected page: Page;
   protected timeToLive: number;
   protected letLive = true;
@@ -24,10 +28,10 @@ export class AcceptFriends implements Service {
     this.timeToLive = randomMinMax(MIN_TIME_TO_LIVE, MAX_TIME_TO_LIVE);
   }
   
-  protected async acceptFriendInvite() {
-    await randomSleep(MIN_SLEEP, MAX_SLEEP);
+  protected async acceptFriendInvite(): Promise<AcceptFriendInviteReturn> {
+    await this.page.waitFor(randomMinMax(MIN_SLEEP, MAX_SLEEP));
     
-    const acceptAnInvite = () => {
+    const acceptAnInvite = (): AcceptFriendInviteReturn => {
       const invites: NodeListOf<HTMLElement> = document.querySelectorAll('li.invitation-card');
       
       if (invites.length) {
@@ -36,15 +40,21 @@ export class AcceptFriends implements Service {
         
         acceptButton.click();
         
-        return invites.length - 1;
+        return {
+          addedOne: true,
+          gotMore: Boolean(invites.length - 1)
+        };
       }
   
-      return 0;
+      return {
+        addedOne: false,
+        gotMore: false
+      };
     }
     
-    const invitesLength = await this.page.evaluate(acceptAnInvite);
+    const value = await this.page.evaluate(acceptAnInvite);
     
-    return !!invitesLength;
+    return value;
   }
   
   public async work() {
@@ -57,8 +67,13 @@ export class AcceptFriends implements Service {
       }, this.timeToLive);
   
       while (this.letLive) {
-        const isThereAnyInvites = await this.acceptFriendInvite();
-        if (!isThereAnyInvites) {
+        const { gotMore, addedOne } = await this.acceptFriendInvite();
+        
+        if (addedOne) {
+          console.log('Accepted a friend request');
+        }
+        
+        if (!gotMore) {
           clearTimeout(timeout);
           this.letLive = false;
           resolve();

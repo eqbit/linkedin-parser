@@ -4,17 +4,17 @@ import { launchBrowser } from '../utils/launchBrowser';
 import { config } from '../config/credentials.env';
 import { getCookie, saveCookie } from '../utils/fs';
 import { CONTACTS_URL, FEED_URL, LOGIN_URL } from '../config/constants';
-import { LifeImitation } from './life-imitation';
-import { AcceptFriends } from './accept-friends';
-import { Service } from './service';
-import { Services } from '../types';
-import { AddFriends } from './add-friends';
+import { Service, Services } from '../types';
 import { availableServices } from './available-services';
+import { chance, randomMinMax } from '../utils/random';
 
 const SCROLLING_DISTANCE = 1000;
 const SCROLLING_INTERVAL = 100;
 const SCROLLING_TIMEOUT = 30000;
-export const NAVIGATION_TIMEOUT = 120000;
+const NAVIGATION_TIMEOUT = 120000;
+
+const MIN_SLEEP_BETWEEN_ACTIONS = 6e4;
+const MAX_SLEEP_BETWEEN_ACTIONS = 3e4;
 
 interface Options {
   login: string;
@@ -145,12 +145,16 @@ export class Main {
   }
   
   protected async runService(service: Service) {
-    console.log(`Begin ${service.name}`);
-    await service.work();
-    console.log(`Finish ${service.name}`);
-    service = null;
+    try {
+      console.log(`Begin ${service.name}`);
+      await service.work();
+      console.log(`Finish ${service.name}`);
+      service = null;
   
-    await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
+      await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
+    } catch (e) {
+      console.log('Caught an error', e)
+    }
   }
   
   protected getService(serviceName: Services): Service {
@@ -160,7 +164,24 @@ export class Main {
     return new serviceClass(options);
   }
   
+  protected getRandomServiceName(): Services | undefined {
+    const services = Object.keys(availableServices) as Services[];
+    
+    if (chance(25)) {
+      return services[Math.floor(Math.random() * services.length)]
+    }
+  }
+  
   public work = async () => {
-    await this.runService(this.getService('lifeImitation'));
+    while(true) {
+      const serviceName = this.getRandomServiceName();
+      
+      if (serviceName) {
+        await this.runService(this.getService(serviceName));
+      } else {
+        console.log('gonna sleep');
+        await this.page.waitFor(randomMinMax(MIN_SLEEP_BETWEEN_ACTIONS, MAX_SLEEP_BETWEEN_ACTIONS));
+      }
+    }
   }
 }

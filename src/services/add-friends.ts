@@ -1,4 +1,4 @@
-import { Service } from './service';
+import { Service } from '../types';
 import { Page } from 'puppeteer';
 import { randomMinMax } from '../utils/random';
 import { NETWORK_URL } from '../config/constants';
@@ -13,7 +13,7 @@ interface Options {
 }
 
 export class AddFriends implements Service {
-  public name: 'add friends service';
+  public name = 'add friends service';
   protected page: Page;
   protected timeToLive: number;
   protected letLive = true;

@@ -1,8 +1,7 @@
 import { Page } from 'puppeteer';
 import { FEED_URL } from '../config/constants';
-import { randomSleep } from '../utils/sleep';
 import { chance, randomMinMax } from '../utils/random';
-import { Service } from './service';
+import { Service } from '../types';
 
 const MIN_TIME_TO_LIVE = 1.2e5;
 const MAX_TIME_TO_LIVE = 3e5;
@@ -16,7 +15,7 @@ interface Options {
 }
 
 export class LifeImitation implements Service {
-  name: 'feed scroller service'
+  public name = 'feed scroller service';
   protected page: Page;
   protected timeToLive: number;
   protected letLive = true;
@@ -38,7 +37,7 @@ export class LifeImitation implements Service {
   protected async initScroll() {
     const scrollDistance = randomMinMax(MIN_SCROLL, MAX_SCROLL);
     await this.scrollPage(scrollDistance);
-    await randomSleep(MIN_SLEEP, MAX_SLEEP);
+    await this.page.waitFor(randomMinMax(MIN_SLEEP, MAX_SLEEP));
   }
   
   protected async leaveReaction() {
@@ -49,14 +48,14 @@ export class LifeImitation implements Service {
       };
       
       await this.page.evaluate(reactWithALike);
-      await randomSleep(MIN_SLEEP, MAX_SLEEP);
+      await this.page.waitFor(randomMinMax(MIN_SLEEP, MAX_SLEEP));
   
       console.log('added a like');
     }
   }
   
   protected async loadNewPosts() {
-    await randomSleep(MIN_SLEEP, MAX_SLEEP);
+    await this.page.waitFor(randomMinMax(MIN_SLEEP, MAX_SLEEP));
     await this.page.evaluate(() => {
       const button: HTMLElement = document.querySelector('[data-control-name="new_updates"]');
       if (button) {
