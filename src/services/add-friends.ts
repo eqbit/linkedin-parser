@@ -14,6 +14,8 @@ const MAX_SCROLL_SLEEP = 120;
 const MIN_SLEEP_BETWEEN_SCROLL = 120;
 const MAX_SLEEP_BETWEEN_SCROLL = 1000;
 
+const MAX_INVITES_PER_RUN = 12;
+
 interface Options {
   page: Page;
 }
@@ -85,20 +87,29 @@ export class AddFriends implements Service {
   public async work() {
     return new Promise(async (resolve) => {
       await this.page.goto(NETWORK_URL, { waitUntil: 'load' });
-    
-      setTimeout(() => {
+  
+      const stopService = () => {
         this.letLive = false;
         resolve();
+      }
+      
+      const timeout = setTimeout(() => {
+        clearTimeout(timeout);
+        stopService();
       }, this.timeToLive);
       
       while (this.letLive) {
         if (!this.isScrolledToList) {
           await this.scrollToList();
         } else {
-          if (this.invited < 12) {
+          if (this.invited < MAX_INVITES_PER_RUN) {
             await this.addFriend();
           } else {
-            await this.page.waitFor(1000);
+            console.log(`sent ${MAX_INVITES_PER_RUN} invites, gonna stop the process for now`);
+            
+            await this.page.waitFor(randomMinMax(MIN_SLEEP, MAX_SLEEP));
+            clearTimeout(timeout);
+            stopService();
           }
         }
       }
