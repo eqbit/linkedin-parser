@@ -16,6 +16,7 @@ interface Options {
 }
 
 export class LifeImitation implements Service {
+  name: 'feed scroller service'
   protected page: Page;
   protected timeToLive: number;
   protected letLive = true;

@@ -14,6 +14,7 @@ interface Options {
 }
 
 export class AcceptFriends implements Service {
+  name: 'friend invite inspector service'
   protected page: Page;
   protected timeToLive: number;
   protected letLive = true;

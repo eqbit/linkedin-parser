@@ -5,9 +5,11 @@ import { config } from '../config/credentials.env';
 import { getCookie, saveCookie } from '../utils/fs';
 import { CONTACTS_URL, FEED_URL, LOGIN_URL } from '../config/constants';
 import { LifeImitation } from './life-imitation';
-import { sleep } from '../utils/sleep';
 import { AcceptFriends } from './accept-friends';
 import { Service } from './service';
+import { Services } from '../types';
+import { AddFriends } from './add-friends';
+import { availableServices } from './available-services';
 
 const SCROLLING_DISTANCE = 1000;
 const SCROLLING_INTERVAL = 100;
@@ -142,36 +144,23 @@ export class Main {
     console.log('links', links)
   }
   
-  protected runLifeImitation = async () => {
-    console.log('start imitation');
-    let lifeImitator = new LifeImitation({ page: this.page });
-    await lifeImitator.work();
-    lifeImitator = null;
-    console.log('finish imitation');
-  
-    await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
-  }
-  
-  protected runFriendInvitesChecker = async () => {
-    console.log('start invite checker');
-    let checker = new AcceptFriends({ page: this.page });
-    await checker.work();
-    checker = null;
-    console.log('finish invite checker');
-  
-    await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
-  }
-  
   protected async runService(service: Service) {
-    console.log(`Begin ${typeof service} service`);
+    console.log(`Begin ${service.name}`);
     await service.work();
+    console.log(`Finish ${service.name}`);
     service = null;
-    console.log(`Finish ${typeof service} service`);
   
     await this.page.goto(CONTACTS_URL, { waitUntil: 'load' });
+  }
+  
+  protected getService(serviceName: Services): Service {
+    const options = { page: this.page };
+    const serviceClass = availableServices[serviceName];
+    
+    return new serviceClass(options);
   }
   
   public work = async () => {
-    await this.runService(new AcceptFriends({ page: this.page}));
+    await this.runService(this.getService('lifeImitation'));
   }
 }
