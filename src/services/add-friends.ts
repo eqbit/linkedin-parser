@@ -10,7 +10,9 @@ const MAX_SLEEP = 2500;
 const MIN_SCROLL = 50;
 const MAX_SCROLL = 60;
 const MIN_SCROLL_SLEEP = 50;
-const MAX_SCROLL_SLEEP = 520;
+const MAX_SCROLL_SLEEP = 120;
+const MIN_SLEEP_BETWEEN_SCROLL = 120;
+const MAX_SLEEP_BETWEEN_SCROLL = 1000;
 
 interface Options {
   page: Page;
@@ -49,7 +51,11 @@ export class AddFriends implements Service {
       }, this.timeToLive);
       
       while (this.letLive) {
-        await this.scrollPage();
+        for (let i = 1; i < randomMinMax(3, 6); i++) {
+          await this.scrollPage();
+        }
+        
+        await this.page.waitFor(randomMinMax(MIN_SLEEP_BETWEEN_SCROLL, MAX_SLEEP_BETWEEN_SCROLL));
         
         if (await this.isRecommendsInViewport()) {
           console.log('yeah!');
