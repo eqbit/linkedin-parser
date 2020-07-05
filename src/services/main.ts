@@ -7,6 +7,7 @@ import { CONTACTS_URL, FEED_URL, LOGIN_URL } from '../config/constants';
 import { Service, Services } from '../types';
 import { availableServices } from './available-services';
 import { chance, randomMinMax } from '../utils/random';
+import { addFriendsChecker } from '../modules/availability-checkers/add-friends';
 
 const SCROLLING_DISTANCE = 1000;
 const SCROLLING_INTERVAL = 100;
@@ -22,6 +23,7 @@ interface Options {
 }
 
 export class Main {
+  protected letLive = true;
   protected browser: Browser;
   protected page: Page;
   protected isAuthenticated = false;
@@ -167,20 +169,32 @@ export class Main {
   protected getRandomServiceName(): Services | undefined {
     const services = Object.keys(availableServices) as Services[];
     
-    if (chance(25)) {
-      return services[Math.floor(Math.random() * services.length)]
+    if (chance(99)) {
+      const service = services[Math.floor(Math.random() * services.length)];
+      
+      if (service === 'addFriends') {
+        if (!addFriendsChecker.isAllowed()) {
+          return;
+        }
+      }
+      
+      return service;
     }
   }
   
+  protected async awaitService() {
+    console.log('gonna sleep');
+    await this.page.waitFor(randomMinMax(MIN_SLEEP_BETWEEN_ACTIONS, MAX_SLEEP_BETWEEN_ACTIONS));
+  }
+  
   public work = async () => {
-    while(true) {
+    while(this.letLive) {
       const serviceName = this.getRandomServiceName();
       
       if (serviceName) {
         await this.runService(this.getService(serviceName));
       } else {
-        console.log('gonna sleep');
-        await this.page.waitFor(randomMinMax(MIN_SLEEP_BETWEEN_ACTIONS, MAX_SLEEP_BETWEEN_ACTIONS));
+        await this.awaitService();
       }
     }
   }

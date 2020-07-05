@@ -2,6 +2,7 @@ import { Service } from '../types';
 import { Page } from 'puppeteer';
 import { randomMinMax } from '../utils/random';
 import { NETWORK_URL } from '../config/constants';
+import { addFriendsChecker } from '../modules/availability-checkers/add-friends';
 
 const MIN_TIME_TO_LIVE = 9e4;
 const MAX_TIME_TO_LIVE = 1.2e5;
@@ -66,6 +67,13 @@ export class AddFriends implements Service {
     return button && await button.isIntersectingViewport();
   }
   
+  protected checkTotalInvitesPerDay() {
+    if (!addFriendsChecker.isAllowed()) {
+      console.log('Day limit reached. Gonna stop the service');
+      this.letLive = false;
+    }
+  }
+  
   protected async addFriend() {
     await this.page.waitFor(randomMinMax(MIN_SLEEP, MAX_SLEEP));
     
@@ -82,6 +90,9 @@ export class AddFriends implements Service {
     await this.page.evaluate(inviteNext);
     console.log('Sent an invite');
     this.invited++;
+    addFriendsChecker.addOne();
+    
+    this.checkTotalInvitesPerDay();
   }
   
   public async work() {
