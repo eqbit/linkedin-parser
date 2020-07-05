@@ -1,4 +1,4 @@
-const MAX_INVITES_PER_DAY = 5;
+const MAX_INVITES_PER_DAY = 75;
 const DAY = 8.64e7;
 
 export class AddFriendsChecker {
