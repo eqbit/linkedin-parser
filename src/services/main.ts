@@ -169,7 +169,7 @@ export class Main {
   protected getRandomServiceName(): Services | undefined {
     const services = Object.keys(availableServices) as Services[];
     
-    if (chance(99)) {
+    if (chance(25)) {
       const service = services[Math.floor(Math.random() * services.length)];
       
       if (service === 'addFriends') {
@@ -183,7 +183,6 @@ export class Main {
   }
   
   protected async awaitService() {
-    console.log('gonna sleep');
     await this.page.waitFor(randomMinMax(MIN_SLEEP_BETWEEN_ACTIONS, MAX_SLEEP_BETWEEN_ACTIONS));
   }
   
