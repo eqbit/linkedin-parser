@@ -106,46 +106,6 @@ export class Main {
     this.isAuthenticated = true;
   }
   
-  protected async scrollPage() {
-    const scroll = (
-      {
-        distance,
-        interval,
-        timeout
-      }
-    ) => new Promise((resolve) => {
-      const intervalId = setInterval(() => {
-        window.scrollBy(0, distance);
-      }, interval);
-      
-      setTimeout(() => {
-        clearInterval(intervalId);
-        resolve();
-      }, timeout);
-    });
-    
-    await this.page.evaluate(
-      scroll,
-      {
-        distance: this.scrollingDistance,
-        interval: this.scrollingInterval,
-        timeout: this.scrollingTimeout
-      }
-    );
-  }
-  
-  protected getProfileLinks = async () => {
-    const links = await this.page.evaluate(() => {
-      const profiles = document.querySelectorAll('.mn-connection-card__picture');
-      const links = [];
-      profiles.forEach((profile) => {
-        links.push(profile.getAttribute('href'));
-      });
-    });
-  
-    console.log('links', links)
-  }
-  
   protected async runService(service: Service) {
     try {
       console.log(`Begin ${service.name}`);
