@@ -3,7 +3,7 @@ import { AddFriends } from './add-friends';
 import { LifeImitation } from './life-imitation';
 
 export const availableServices = {
-  acceptFriends: AcceptFriends,
+  // acceptFriends: AcceptFriends,
   addFriends: AddFriends,
-  lifeImitation: LifeImitation
+  // lifeImitation: LifeImitation
 };
